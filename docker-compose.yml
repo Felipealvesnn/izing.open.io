@@ -1,0 +1,30 @@
+﻿version: '3'
+services:
+  
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ./backend/.env
+    stdin_open: true
+    tty: true
+    ports:
+      - "3100:3100"
+    volumes:
+      - .data/.wwebjs_auth:/app/.wwebjs_auth
+      - .data/medias:/app/public
+
+  # frontend:
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   extra_hosts:
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - ../.data/frontend:/app/dist/spa
