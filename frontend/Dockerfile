@@ -22,8 +22,8 @@ FROM nginx:alpine
 # Copia os arquivos compilados da etapa de build para o diretório padrão do Nginx
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 
-# Exponha a porta 80 para acessar a aplicação
-EXPOSE 80
+# Exponha a porta  para acessar a aplicação
+EXPOSE 3003
 
 # Comando para iniciar o Nginx
 CMD ["nginx", "-g", "daemon off;"]

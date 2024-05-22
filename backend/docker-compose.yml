@@ -80,6 +80,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     container_name: "frontend"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:80"
     depends_on:
