@@ -16,8 +16,8 @@ module.exports = {
   timezone: "UTC",
   host: process.env.POSTGRES_HOST || "localhost",
   port: parseInt(process.env.DB_PORT ?? '10', 10) || 5432,
-  database: process.env.POSTGRES_DB || "wchats",
+  database: process.env.POSTGRES_DB || "izing",
   username: process.env.POSTGRES_USER || "postgres",
-  password: process.env.POSTGRES_PASSWORD || "marina@0509",
+  password: process.env.POSTGRES_PASSWORD || "postgres",
   logging: false
 };

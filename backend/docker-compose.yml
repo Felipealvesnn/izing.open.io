@@ -1,90 +1,64 @@
-version: "3"
-
+﻿version: '3'
 services:
-  redis:
-    container_name: "redis"
-    image: "redis:alpine"
+  postgresql-zdg:
+    image: postgres
     restart: always
-    command: redis-server --appendonly yes --replica-read-only no
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    environment:
+      POSTGRES_USER: izing
+      POSTGRES_PASSWORD: password
+      TZ: "America/Sao_Paulo"
     ports:
-      - "6379:6379"
-    env_file:
-      - ./.env
+      - 5432:5432
     volumes:
-      - ".data/redis:/data"
+      - /data:/var/lib/postgresql/datazdgizing
 
-  # database containers, one for each db
-  pg_fixPermissions:
-    image: "bitnami/postgresql:14"
-    user: root
-    command: chown -R 1001:1001 /bitnami/postgresql
-    volumes:
-      - ".data/pg:/bitnami/postgresql/data"
-
-  postgres:
-    image: "bitnami/postgresql:14"
+  redis-zdg:
+    image: redis:latest
+    command: redis-server --appendonly yes --requirepass "password"
     restart: always
-    container_name: "pg"
-    env_file:
-      - ./.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - ".data/pg:/bitnami/postgresql/data"
+    environment:
+      TZ: "America/Sao_Paulo"
     ports:
-      - "5432:5432"
-    depends_on:
-      - pg_fixPermissions
+      - 6379:6379
 
-  rabbitmq:
-    image: rabbitmq:3-management
+  rabbitmq-zdg:
+    image: rabbitmq:3-management-alpine
+    restart: always
     hostname: rabbitmq
-    container_name: "rabbitmq"
-    restart: always
-    env_file:
-      - ./.env
-    volumes: 
-      - .data/rabbitmq/data/:/var/lib/rabbitmq/
-      - .data/rabbitmq/logs/:/var/log/rabbitmq/log
     ports:
       - 5672:5672
       - 15672:15672
-
-  api:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    restart: always
-    container_name: "api"
-    env_file:
-      - ./.env
-    stdin_open: true
-    tty: true
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - redis
-      - postgres
-      - rabbitmq
-    ports:
-      - "3100:3100"
     volumes:
-      - .data/.wwebjs_auth:/app/.wwebjs_auth
-      - .data/medias:/app/public
+      - /data:/var/lib/rabbitmq
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    restart: always
-    container_name: "frontend"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports:
-      - "8080:80"
-    depends_on:
-      - api
-    volumes:
-      - ../.data/frontend:/app/dist/spa
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   restart: always
+  #   env_file:
+  #     - ./.env
+  #   stdin_open: true
+  #   tty: true
+  #   depends_on:
+  #     - redis-zdg
+  #     - postgresql-zdg
+  #     - rabbitmq-zdg
+  #   ports:
+  #     - "3100:3100"
+  #   volumes:
+  #     - .data/.wwebjs_auth:/app/.wwebjs_auth
+  #     - .data/medias:/app/public
+
+  # frontend:
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   extra_hosts:
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - ../.data/frontend:/app/dist/spa

@@ -23,7 +23,7 @@ FROM nginx:alpine
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 
 # Exponha a porta  para acessar a aplicação
-EXPOSE 3003
+EXPOSE 8080
 
 # Comando para iniciar o Nginx
 CMD ["nginx", "-g", "daemon off;"]
