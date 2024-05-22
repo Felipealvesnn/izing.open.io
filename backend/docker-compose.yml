@@ -45,7 +45,7 @@ services:
     restart: always
     env_file:
       - ./.env
-    volumes:
+    volumes: 
       - .data/rabbitmq/data/:/var/lib/rabbitmq/
       - .data/rabbitmq/logs/:/var/log/rabbitmq/log
     ports:
@@ -73,3 +73,16 @@ services:
     volumes:
       - .data/.wwebjs_auth:/app/.wwebjs_auth
       - .data/medias:/app/public
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    restart: always
+    container_name: "frontend"
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    volumes:
+      - ../.data/frontend:/app/dist/spa

@@ -1,7 +1,8 @@
-FROM node:18-bookworm-slim as global-deps-stage
+﻿FROM node:18-bookworm-slim as global-deps-stage
 
 WORKDIR /app
 
+# Instalação de dependências globais
 RUN apt-get update \
   && apt-get install -y wget gnupg nano ffmpeg=7:5.1.4-0+deb12u1 \
   && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -11,24 +12,41 @@ RUN apt-get update \
   --no-install-recommends \
   && rm -rf /var/lib/apt/lists/* && npm install pm2@latest -g
 
+# Variáveis de ambiente
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 ENV NODE_ENV=dev
 ENV CHROME_BIN=google-chrome-stable
 
-FROM global-deps-stage as develop-stage
+# Copia os arquivos package.json e package-lock.json para a instalação de dependências
 COPY package*.json ./
+
+# Instalação de dependências de desenvolvimento
 RUN npm install
 
-FROM develop-stage as build-stage
+# Etapa de desenvolvimento
+FROM global-deps-stage as develop-stage
+
+# Copia os arquivos de configuração e código-fonte para o diretório de trabalho
 COPY . .
-RUN npm run build
 
-FROM build-stage as development-stage
-ENV NODE_ENV=development
-ENTRYPOINT ["npm", "run", "dev:server"]
+# Etapa de construção
+FROM develop-stage as build-stage
 
-FROM build-stage as production-stage
-ENV NODE_ENV=production
+# Define o diretório de trabalho para o desenvolvimento
+WORKDIR /app
+
+# Copia os arquivos novamente para garantir que estão presentes na etapa de construção
+COPY . .
+
+# Etapa final
+FROM build-stage as final-stage
+
+# Copia o script de entrada para o contêiner
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
+
+# Define o diretório de trabalho para a execução da aplicação
+WORKDIR /app
+
+# Define o ponto de entrada do contêiner
 ENTRYPOINT ["./docker-entrypoint.sh"]
