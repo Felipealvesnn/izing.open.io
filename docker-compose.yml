@@ -50,6 +50,7 @@ services:
     volumes:
       - .data/.wwebjs_auth:/app/.wwebjs_auth
       - .data/medias:/app/public
+      - ./backend:/app 
 
   frontend:
     build:
