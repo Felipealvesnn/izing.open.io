@@ -18,7 +18,7 @@ const waitForPostgresConnection = async function () {
       await sequelize.authenticate();
       logger.info("Conexão com o PostgreSQL estabelecida com sucesso!");
 
-      if (process.env.NODE_ENV === "production") {
+      if (process.env.NODE_ENV === "prod") {
         logger.info("Iniciando a execução das migrations...");
         // eslint-disable-next-line no-await-in-loop
         const { stdout, stderr } = await execAsync(
