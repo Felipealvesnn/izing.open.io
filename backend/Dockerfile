@@ -22,7 +22,7 @@ FROM global-deps-stage as develop-stage
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package*.json 
 RUN npm install
 
 # Terceira etapa: Construção do projeto
