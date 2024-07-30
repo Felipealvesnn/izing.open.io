@@ -17,7 +17,9 @@ RUN set -x \
     chromium
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package.json /usr/src/app
+RUN npm install
+RUN npm update
 
 # Install the dependencies
 RUN npm ci --only=production --ignore-scripts
