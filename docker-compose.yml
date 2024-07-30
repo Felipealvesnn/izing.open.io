@@ -40,6 +40,9 @@ services:
       - ./backend/.env
     stdin_open: true
     tty: true
+    environment:
+      - POSTGRES_HOST=postgresql-zdg
+      - IO_REDIS_SERVER=redis-zdg
     depends_on:
       - redis-zdg
       - postgresql-zdg
