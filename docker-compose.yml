@@ -21,15 +21,15 @@ services:
     ports:
       - 6379:6379
 
-  rabbitmq-zdg:
-    image: rabbitmq:3-management-alpine
-    restart: always
-    hostname: rabbitmq
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - /data:/var/lib/rabbitmq
+  # rabbitmq-zdg:
+  #   image: rabbitmq:3-management-alpine
+  #   restart: always
+  #   hostname: rabbitmq
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
+  #   volumes:
+  #     - /data:/var/lib/rabbitmq
 
   api:
     build:
@@ -43,10 +43,11 @@ services:
     environment:
       - POSTGRES_HOST=postgresql-zdg
       - IO_REDIS_SERVER=redis-zdg
+      - AMQP_URL=amqp://user:password@172.26.0.2:5672?connection_attempts=5&retry_delay=5
     depends_on:
       - redis-zdg
       - postgresql-zdg
-      - rabbitmq-zdg
+      # - rabbitmq-zdg
     ports:
       - "3100:3100"
       - "9229:9229"
