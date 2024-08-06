@@ -16,7 +16,7 @@ ENV NODE_ENV=dev
 ENV CHROME_BIN=google-chrome-stable
 
 FROM global-deps-stage as develop-stage
-COPY package*.json ./app
+COPY package*.json 
 RUN npm install
 
 FROM develop-stage as build-stage
