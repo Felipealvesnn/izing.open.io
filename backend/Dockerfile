@@ -1,33 +1,34 @@
-# Use the official Node.js Alpine image as the base image
-FROM node:20-alpine
+FROM node:18-bookworm-slim as global-deps-stage
 
-# Set the working directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Install Chromium
-ENV CHROME_BIN="/usr/bin/chromium-browser" \
-    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="true" \
-    NODE_ENV="production"
-RUN set -x \
-    && apk update \
-    && apk upgrade \
-    && apk add --no-cache \
-    udev \
-    ttf-freefont \
-    chromium
+RUN apt-get update \
+  && apt-get install -y wget gnupg nano ffmpeg=7:5.1.4-0+deb12u1 \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  && apt-get update \
+  && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+  --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* && npm install pm2@latest -g
 
-# Copy package.json and package-lock.json to the working directory
-COPY abc/package*.json ./
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV NODE_ENV=dev
+ENV CHROME_BIN=google-chrome-stable
+
+FROM global-deps-stage as develop-stage
+COPY package*.json ./
 RUN npm install
-RUN npm update
 
-# Install the dependencies
-RUN npm ci --only=production --ignore-scripts
-
-# Copy the rest of the source code to the working directory
+FROM develop-stage as build-stage
 COPY . .
+RUN npm run build
 
+FROM build-stage as development-stage
+ENV NODE_ENV=development 
+ENTRYPOINT ["npm", "run", "dev:server"]
 
-
-# Start the API
-CMD ["npm", "start"]
+FROM build-stage as production-stage
+ENV NODE_ENV=production
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
