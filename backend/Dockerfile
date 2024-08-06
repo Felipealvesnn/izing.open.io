@@ -1,28 +1,24 @@
 # Etapa base para instalar dependências globais
 FROM node:18-bookworm-slim as global-deps-stage
 
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json e package-lock.json para instalar as dependências
+# Copiar arquivos de dependências para o contêiner
 COPY package*.json ./
 
-# Instalar dependências necessárias e configurar repositório do Google Chrome
-#RUN apt-get update && apt-get install -y wget gnupg nano ffmpeg=7:5.1.4-0+deb12u1 \
-  #&& wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  #&& echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list \
-  #&& apt-get update && apt-get install -y google-chrome-stable \
-  #fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
- # --no-install-recommends \
- # && rm -rf /var/lib/apt/lists/* \
- # && npm install pm2@latest -g
-
 # Definir variáveis de ambiente
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV NODE_ENV=dev
 ENV CHROME_BIN=google-chrome-stable
 
+# Instalar dependências globais, se necessário
+RUN npm install pm2@latest -g
+
 # Etapa de desenvolvimento
 FROM global-deps-stage as develop-stage
+
+# Definir diretório de trabalho
 WORKDIR /app
 
 # Copiar novamente package*.json para garantir que estão disponíveis para npm install
@@ -34,6 +30,9 @@ RUN npm install
 # Etapa de construção
 FROM develop-stage as build-stage
 
+# Definir diretório de trabalho
+WORKDIR /app
+
 # Copiar todo o código-fonte para o contêiner
 COPY . .
 
@@ -42,6 +41,8 @@ RUN npm run build
 
 # Etapa de desenvolvimento de servidor
 FROM build-stage as development-stage
+
+# Definir variáveis de ambiente
 ENV NODE_ENV=development
 
 # Definir ponto de entrada para o desenvolvimento
@@ -49,10 +50,14 @@ ENTRYPOINT ["npm", "run", "dev:server"]
 
 # Etapa de produção
 FROM build-stage as production-stage
+
+# Definir variáveis de ambiente
 ENV NODE_ENV=production
 
 # Copiar script de entrada para o contêiner
 COPY docker-entrypoint.sh .
+
+# Garantir permissões de execução para o script de entrada
 RUN chmod +x docker-entrypoint.sh
 
 # Definir ponto de entrada para a produção
