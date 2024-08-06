@@ -1,3 +1,4 @@
+# Etapa base para instalar dependências globais
 FROM node:18-bookworm-slim as global-deps-stage
 
 WORKDIR /app
@@ -15,18 +16,23 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 ENV NODE_ENV=dev
 ENV CHROME_BIN=google-chrome-stable
 
+# Etapa de desenvolvimento
 FROM global-deps-stage as develop-stage
-COPY package*.json ./
+WORKDIR /app
+COPY package*.json ./   # Certifique-se de que a linha COPY está correta
 RUN npm install
 
+# Etapa de construção
 FROM develop-stage as build-stage
 COPY . .
 RUN npm run build
 
+# Etapa de desenvolvimento de servidor
 FROM build-stage as development-stage
 ENV NODE_ENV=development 
 ENTRYPOINT ["npm", "run", "dev:server"]
 
+# Etapa de produção
 FROM build-stage as production-stage
 ENV NODE_ENV=production
 COPY docker-entrypoint.sh .
