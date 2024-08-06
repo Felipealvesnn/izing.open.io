@@ -2,6 +2,7 @@
 FROM node:18-bookworm-slim as global-deps-stage
 
 WORKDIR /app
+COPY package*.json ./
 
 RUN apt-get update \
   && apt-get install -y wget gnupg nano ffmpeg=7:5.1.4-0+deb12u1 \
