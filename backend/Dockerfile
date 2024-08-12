@@ -28,7 +28,7 @@ RUN npm run build
 
 EXPOSE 3100
 
-COPY docker-entrypoint.sh .
-RUN chmod +x docker-entrypoint.sh
+#COPY docker-entrypoint.sh .
+#RUN chmod +x docker-entrypoint.sh
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
