@@ -32,9 +32,10 @@ services:
   #     - /data:/var/lib/rabbitmq
 
   api:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: felipealvesnn/apiap:latest
+    #build:
+      # context: ./backend
+      # dockerfile: Dockerfile
     restart: always
     env_file:
       - ./backend/.env
