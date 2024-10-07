@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable camelcase */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
+/* eslint-disable prettier/prettier */
 import { readFile } from "fs/promises";
 import ffmpeg from "fluent-ffmpeg";
 import {

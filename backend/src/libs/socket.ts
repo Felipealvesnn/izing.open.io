@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Server as SocketIO } from "socket.io";
 import socketRedis from "socket.io-redis";
 import { Server } from "http";

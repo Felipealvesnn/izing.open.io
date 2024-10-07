@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable import/prefer-default-export */
 interface IParams {
   minMilliseconds?: number;
