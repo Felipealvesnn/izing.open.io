@@ -71,8 +71,4 @@ services:
     depends_on:
       - api
     volumes:
-<<<<<<< HEAD
-      - ./data/frontend:/app/dist/spa
-=======
       - ../.data/frontend:/app/dist/spa
->>>>>>> 549565cec1759b216fc98bb5822948681bf11860
