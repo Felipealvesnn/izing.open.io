@@ -32,10 +32,10 @@ services:
       - "6379:6379"
 
   api:
-    image: felipealvesnn/apiap:latest
-    # build:
-    #   context: ./backend
-    #   dockerfile: Dockerfile
+    #image: felipealvesnn/apiap:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: always
     env_file:
       - ./backend/.env

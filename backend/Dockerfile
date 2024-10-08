@@ -53,18 +53,13 @@
 
 # Base image com Node.js
 # Base image com Node.js
+
 FROM node:18-slim AS base
 
 WORKDIR /app
 
-# Instalar dependências do sistema necessárias
-# Instalar dependências do sistema necessárias
-# RUN apt-get update && apt-get install -y \
-#     ffmpeg \
-#     libvips-dev \
-#     build-essential \
-#     python3 \
-#     && rm -rf /var/lib/apt/lists/*
+# Instalar o curl
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Baixar o script wait-for-it.sh
 RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && \
@@ -99,3 +94,4 @@ EXPOSE 3100
 
 # Comando para iniciar o servidor Node.js usando PM2
 CMD ["pm2-runtime", "dist/server.js", "--output", "/app/logs/out.log", "--error", "/app/logs/error.log"]
+
