@@ -58,12 +58,17 @@ FROM node:18-slim AS base
 WORKDIR /app
 
 # Instalar dependências do sistema necessárias
-RUN apt-get update --no-cache && apt-get install -y \
-    ffmpeg \
-    libvips-dev \
-    build-essential \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+# Instalar dependências do sistema necessárias
+# RUN apt-get update && apt-get install -y \
+#     ffmpeg \
+#     libvips-dev \
+#     build-essential \
+#     python3 \
+#     && rm -rf /var/lib/apt/lists/*
+
+# Baixar o script wait-for-it.sh
+RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && \
+    chmod +x /usr/local/bin/wait-for-it.sh
 
 # Instalar o PM2 globalmente
 RUN npm install pm2@latest -g
