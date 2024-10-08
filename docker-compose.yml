@@ -17,8 +17,8 @@ services:
     restart: always
     hostname: rabbitmq
     ports:
-      - 5678:5678
-      - 15678:15678
+      - 5679:5679
+      - 15679:15679
     volumes:
       - /data:/var/lib/rabbitmq
 
@@ -32,10 +32,10 @@ services:
       - "6379:6379"
 
   api:
-    image: felipealvesnn/apiap:latest
-    #build:
-      # context: ./backend
-      # dockerfile: Dockerfile
+   # image: felipealvesnn/apiap:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: always
     env_file:
       - ./backend/.env
@@ -44,7 +44,7 @@ services:
     environment:
       - POSTGRES_HOST=postgresql-zdg
       - IO_REDIS_SERVER=redis-zdg
-      - AMQP_URL=amqp://guest:guest@rabbitmq:5678?connection_attempts=5&retry_delay=5
+      - AMQP_URL=amqp://guest:guest@rabbitmq:5679?connection_attempts=5&retry_delay=5
      ## - AMQP_URL=amqp://user:password@172.26.0.2:5672?connection_attempts=5&retry_delay=5
     depends_on:
       - redis-zdg
