@@ -52,12 +52,13 @@
 # CMD ["pm2-docker", "start", "./dist/server.js"]
 
 # Base image com Node.js
+# Base image com Node.js
 FROM node:18-slim AS base
 
 WORKDIR /app
 
 # Instalar dependências do sistema necessárias
-RUN apt-get update && apt-get install -y \
+RUN apt-get update --no-cache && apt-get install -y \
     ffmpeg \
     libvips-dev \
     build-essential \
@@ -70,7 +71,7 @@ RUN npm install pm2@latest -g
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências
+# Instalar dependências de desenvolvimento
 RUN npm ci
 
 # Copiar o código da aplicação
@@ -79,18 +80,17 @@ COPY . .
 # Executar o build
 RUN npm run build --verbose
 
-# Definir variável de ambiente
-ENV NODE_ENV=production
-
-# Remover dependências de desenvolvimento
-RUN npm prune --production
+# Remover dependências de desenvolvimento e manter apenas as de produção
+# RUN npm prune --production
 
 # Criar diretório para logs
 RUN mkdir -p /app/logs
 
-# Expor a porta (se aplicável)
-EXPOSE 3000
+# Definir variável de ambiente
+# ENV NODE_ENV=production
 
-# Comando para iniciar o servidor Node.js usando PM2 com logs ativos
-CMD ["pm2-runtime", "dist/server.js", "--no-daemon", "--output", "/app/logs/out.log", "--error", "/app/logs/error.log"]
+# Expor a porta que sua aplicação vai usar
+EXPOSE 3100
 
+# Comando para iniciar o servidor Node.js usando PM2
+CMD ["pm2-runtime", "dist/server.js", "--output", "/app/logs/out.log", "--error", "/app/logs/error.log"]
