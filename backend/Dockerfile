@@ -54,44 +54,38 @@
 # Base image com Node.js
 # Base image com Node.js
 
-FROM node:18-slim AS base
+FROM node:18-bookworm-slim as global-deps-stage
 
 WORKDIR /app
 
-# Instalar o curl
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y wget gnupg nano ffmpeg=7:5.1.4-0+deb12u1 \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  && apt-get update \
+  && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
+  --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/* && npm install pm2@latest -g
 
-# Baixar o script wait-for-it.sh
-RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && \
-    chmod +x /usr/local/bin/wait-for-it.sh
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+ENV NODE_ENV=dev
+ENV CHROME_BIN=google-chrome-stable
 
-# Instalar o PM2 globalmente
-RUN npm install pm2@latest -g
-
-# Copiar arquivos de dependências
+FROM global-deps-stage as develop-stage
 COPY package*.json ./
+RUN npm install
 
-# Instalar dependências de desenvolvimento
-RUN npm ci
-
-# Copiar o código da aplicação
+FROM develop-stage as build-stage
 COPY . .
+RUN npm run build
 
-# Executar o build
-RUN npm run build --verbose
+FROM build-stage as development-stage
+ENV NODE_ENV=development
+ENTRYPOINT ["npm", "run", "dev:server"]
 
-# Remover dependências de desenvolvimento e manter apenas as de produção
-# RUN npm prune --production
-
-# Criar diretório para logs
-RUN mkdir -p /app/logs
-
-# Definir variável de ambiente
-# ENV NODE_ENV=production
-
-# Expor a porta que sua aplicação vai usar
-EXPOSE 3100
-
-# Comando para iniciar o servidor Node.js usando PM2
-CMD ["pm2-runtime", "dist/server.js", "--output", "/app/logs/out.log", "--error", "/app/logs/error.log"]
+FROM build-stage as production-stage
+ENV NODE_ENV=production
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
